@@ -47,10 +47,10 @@ public class multicastClient {
         boolean send = sendAgain(inMsg);
         
         //check if message will be dropped or not
-        if(ttl<0 || newLt<0 || send==false || username.equals(datMsg[0])){
+        if(ttl<0 || newLt<0 || username.equals(datMsg[0])){
             System.out.println("      ttl        : "+ttl);
             System.out.println("      newLt      : "+newLt);
-            System.out.println("      send status: "+send);
+            //System.out.println("      send status: "+send);
             System.out.println("      To         : "+datMsg[0]);
             return "message dropped";
         }

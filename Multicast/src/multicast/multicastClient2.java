@@ -1,14 +1,13 @@
-
 package multicast;
 
 import java.util.*;
 import java.io.*;
 import java.net.*;
 
-public class multicastClient1 {
+public class multicastClient2 {
     
     final static String INET_ADDR = "224.0.0.3";
-    public static String username = "user2";
+    public static String username = "user3";
     final static int PORT = 2526;
     private static int now =1;
     
@@ -50,7 +49,7 @@ public class multicastClient1 {
         if(ttl<0 || newLt<0 || username.equals(datMsg[0])){
             System.out.println("      ttl        : "+ttl);
             System.out.println("      newLt      : "+newLt);
-            //System.out.println("      send status: "+send);
+            System.out.println("      send status: "+send);
             System.out.println("      To         : "+datMsg[0]);
             return "message dropped";
         }
@@ -109,5 +108,4 @@ public class multicastClient1 {
             }
         }
     }
-    
 }
