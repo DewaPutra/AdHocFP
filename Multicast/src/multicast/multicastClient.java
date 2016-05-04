@@ -16,7 +16,7 @@ public class multicastClient {
         boolean send=false;
         String datMsg[] = inMsg.split(",");
         for(int i=4;i<datMsg.length;i++){
-            if(!username.equals(datMsg[i])){
+            if(!username.equalsIgnoreCase(datMsg[i].trim())){
                 send=true;
             } else
             {
@@ -46,8 +46,11 @@ public class multicastClient {
         int newLt = Integer.parseInt(datMsg[3])-300; // decrease lifetime
         boolean send = sendAgain(inMsg);
         
+        if (send==false) 
+            return "myself";
+        
         //check if message will be dropped or not
-        if(ttl<0 || newLt<0 || username.equals(datMsg[0])){
+        if(ttl<0 || newLt<0 || username.equalsIgnoreCase(datMsg[0].trim())){
             System.out.println("      ttl        : "+ttl);
             System.out.println("      newLt      : "+newLt);
             //System.out.println("      send status: "+send);
@@ -94,14 +97,18 @@ public class multicastClient {
                     if(outMsg.equals("message dropped")){
                         System.out.println(outMsg);
                         return;
-                    } else
-                    {
-                        System.out.println("inMsg: "+inMsg);
-                        System.out.println("outMsg: "+outMsg);
-                        printMsg(inMsg);
-                        System.out.println("Sending message...\n\n");
-                        DatagramPacket outPacket = new DatagramPacket(outMsg.getBytes(),outMsg.getBytes().length, addr, PORT);
-                        s.send(outPacket);
+                    } else {
+                        if (outMsg.equalsIgnoreCase("myself")){
+                            System.out.println("Target is ME");
+                        }
+                        else {
+                            System.out.println("inMsg: "+inMsg);
+                            System.out.println("outMsg: "+outMsg);
+                            printMsg(inMsg);
+                            System.out.println("Sending message...\n\n");
+                            DatagramPacket outPacket = new DatagramPacket(outMsg.getBytes(),outMsg.getBytes().length, addr, PORT);
+                            s.send(outPacket);
+                        }
                     }
             } catch (IOException ex) {
                 ex.printStackTrace();
