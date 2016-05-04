@@ -14,18 +14,20 @@ public class multicastClient1 {
     private static String[] flag = new String[10000];
     private static int index=0;
     
-    public static boolean sendAgain(String inMsg){
-        boolean send=false;
+    public static String sendAgain(String inMsg){
+        String send="false";
         String datMsg[] = inMsg.split(",");
+        if (!username.equalsIgnoreCase(datMsg[datMsg.length-1].trim())) {
+            send="true";
+        } else
+            return "myself";
         for(int i=0;i<index;i++){
-            if(!flag[index].equalsIgnoreCase(datMsg[i].trim())){
-                send=true;
-            } else
-            {
-                send=false;
+            if(flag[i].equalsIgnoreCase(datMsg[datMsg.length-1].trim())){
+                return "flood";
+            } else{
+                send="false";
             }
         }
-        if (index==0) send=true;
         return send;
     }
     
@@ -47,15 +49,15 @@ public class multicastClient1 {
         String datMsg[] = inMsg.split(",");
         int ttl = Integer.parseInt(datMsg[2])-1; //decrease ttl
         int newLt = Integer.parseInt(datMsg[3])-300; // decrease lifetime
-        boolean send = sendAgain(inMsg);
+        String send = sendAgain(inMsg);
         
-        if (send==false && username.equalsIgnoreCase(datMsg[datMsg.length-1].trim())) 
+        if (send=="myself") 
             return "myself";
-        else if (send==false) {
-            return "flooding";
-        }
+        if (send=="flood")
+            return "flood";
+        
         //check if message will be dropped or not
-        if(ttl<0 || newLt<0 || datMsg[datMsg.length-1].trim().equalsIgnoreCase(datMsg[0].trim())){
+        if(ttl<0 || newLt<0 || username.equalsIgnoreCase(datMsg[0].trim())){
             System.out.println("      ttl        : "+ttl);
             System.out.println("      newLt      : "+newLt);
             //System.out.println("      send status: "+send);
@@ -97,6 +99,8 @@ public class multicastClient1 {
             byte[] buff = new byte[10000];
             s.receive(new DatagramPacket(buff, 10000, group, PORT));     
             String inMsg = new String(buff, 0, buff.length); //receive message
+            System.out.println("received message: "+inMsg.trim());
+            String outMsg = newMsg(inMsg.trim());
             
             String datMsg[] = inMsg.split(",");
             int status = 0; //mengecek apa sender sudah pernah mengirim atau belum
@@ -109,11 +113,6 @@ public class multicastClient1 {
                 flag[index]=datMsg[datMsg.length-1].trim();
                 index++;
             }
-            
-            System.out.println("received message: "+inMsg.trim());
-            String outMsg = newMsg(inMsg.trim());
-            
-            
             
             try { // try sending
 //                    System.out.println("outMsg: "+outMsg);
@@ -128,10 +127,11 @@ public class multicastClient1 {
                     } else {
                         if (outMsg.equalsIgnoreCase("myself")){
                             System.out.println("Target is ME\n");
-                        }else if (outMsg.equalsIgnoreCase("flooding")) {
-                            continue;
-                        } else {
-                            System.out.println("inMsg: "+inMsg.trim());
+                        } else if (outMsg.equalsIgnoreCase("flood")){
+                            System.out.println("Flooding");
+                        }
+                        else {
+                            System.out.println("inMsg: "+inMsg);
                             System.out.println("outMsg: "+outMsg);
                             printMsg(inMsg);
                             System.out.println("Sending message...\n\n");
